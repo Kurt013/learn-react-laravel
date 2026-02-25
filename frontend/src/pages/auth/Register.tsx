@@ -37,12 +37,12 @@ const Register = ({ goToTab }: RegisterFormProps) => {
     },
   });
 
-
   const password = watch("password");
 
   const onSubmit: SubmitHandler<RegisterForm> = async (data) => {
     try {
       await api.post("/api/register", data);
+      goToTab("login");
     } catch (error) {
       console.error(error);
     }
