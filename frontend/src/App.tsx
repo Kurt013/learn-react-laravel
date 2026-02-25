@@ -1,27 +1,25 @@
 import "./App.css";
 import "@mantine/core/styles.css";
-import api from "./middleware/api";
 import { MantineProvider } from "@mantine/core";
-import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/home/Home";
+import Login from "./pages/auth/Login";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 const queryClient = new QueryClient();
 
 function App() {
-  useEffect(() => {
-    api
-      .get("/up")
-      .then((response) => {
-        console.log("lezzgaur", response);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider></MantineProvider> 
+      <MantineProvider>
+        <Routes>
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/" element={<Home />}></Route>
+          </Route>
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </MantineProvider>
     </QueryClientProvider>
   );
 }
