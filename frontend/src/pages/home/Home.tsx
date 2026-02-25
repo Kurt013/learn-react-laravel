@@ -16,7 +16,6 @@ import {
   Title,
   Text,
   ActionIcon,
-  Badge,
   Flex,
 } from "@mantine/core";
 import { IconTrash, IconEdit, IconLogout } from "@tabler/icons-react";
@@ -24,7 +23,6 @@ import api from "../../middleware/api";
 import { useAuth } from "../../hooks/auth";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import type { AxiosResponse } from "axios";
 
 const Home = () => {
   const [notes, setNotes] = useState([]);
@@ -64,13 +62,12 @@ const Home = () => {
   const onSubmit: SubmitHandler<NoteType> = async (data: NoteType) => {
     await api.get("/sanctum/csrf-cookie");
 
-    let res: AxiosResponse<any, any, {}>;
     if (selectedItem) {
       //update
-      res = await api.put(`/api/note/${data.id}`, data);
+      await api.put(`/api/note/${data.id}`, data);
     } else {
       //new
-      res = await api.post("/api/note", data);
+      await api.post("/api/note", data);
     }
 
     await getNotes();
@@ -146,7 +143,7 @@ const Home = () => {
     if (selectedItem) {
       setValue("desc", selectedItem?.desc);
       setValue("id", selectedItem.id);
-      console.log(selectedItem);
+      // console.log(selectedItem);
     }
   }, [selectedItem]);
 
@@ -264,4 +261,5 @@ type NoteType = {
   updated_at?: string;
   deleted_at?: string;
 };
+
 export default Home;
