@@ -41,7 +41,6 @@ const Home = () => {
     const res = await api.get("/api/note");
 
     if (res.data && res.data.length > 0) setNotes(res.data);
-    console.log(notes);
   };
 
   const handleDelete = async (id: number | null) => {

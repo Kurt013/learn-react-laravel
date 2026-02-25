@@ -1,71 +1,83 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   TextInput,
   PasswordInput,
   Container,
   Center,
-  Loader,
   Stack,
   Title,
   Text,
 } from "@mantine/core";
-import { useAuth, type LoginType } from "../../hooks/auth";
+import api from "../../middleware/api";
 
-interface LoginFormProps {
+interface RegisterFormProps {
   goToTab: (tab: "login" | "register") => void;
 }
 
-export default function Login({ goToTab }: LoginFormProps) {
-  const navigate = useNavigate();
-  const { user, refetchUser, login, userLoading } = useAuth();
+type RegisterForm = {
+  email: string;
+  password: string;
+  password_confirmation: string;
+  name: string;
+};
 
+const Register = ({ goToTab }: RegisterFormProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginType>({ defaultValues: { email: "", password: "" } });
+    watch,
+  } = useForm<RegisterForm>({
+    defaultValues: {
+      email: "",
+      password: "",
+      password_confirmation: "",
+      name: "",
+    },
+  });
 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
+
+  const password = watch("password");
+
+  const onSubmit: SubmitHandler<RegisterForm> = async (data) => {
+    try {
+      await api.post("/api/register", data);
+    } catch (error) {
+      console.error(error);
     }
-  }, [user]);
-
-  const onSubmit: SubmitHandler<LoginType> = async (data) => {
-    await login(data);
-    await refetchUser();
   };
 
-  const loginContainerProps = {
+  const registerContainerProps = {
     size: "xs",
     py: { base: 80, md: 100 },
   };
 
-  if (userLoading)
-    return (
-      <Center h="100vh">
-        <Loader />
-      </Center>
-    );
-
   return (
-    <Container {...loginContainerProps}>
+    <Container {...registerContainerProps}>
       <Stack gap="lg" align="center" justify="center">
         <div style={{ textAlign: "center" }}>
           <Title order={1} size="h2" fw={700} mb="xs">
-            Welcome Back
+            Create Account
           </Title>
           <Text c="dimmed" size="sm">
-            Sign in to your account to continue
+            Join us today to get started
           </Text>
         </div>
 
         <Stack gap="md" style={{ width: "100%", maxWidth: 400 }}>
           <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
             <Stack gap="md">
+              <TextInput
+                label="Full Name"
+                placeholder="John Doe"
+                type="text"
+                {...register("name", { required: "Name is required" })}
+                error={errors.name?.message}
+                radius="md"
+                size="md"
+              />
+
               <TextInput
                 label="Email"
                 placeholder="your@email.com"
@@ -78,30 +90,47 @@ export default function Login({ goToTab }: LoginFormProps) {
 
               <PasswordInput
                 label="Password"
-                placeholder="Enter your password"
+                placeholder="Create a strong password"
                 {...register("password", {
                   required: "Password is required",
+                  minLength: {
+                    value: 8,
+                    message: "Password must be at least 8 characters",
+                  },
                 })}
                 error={errors.password?.message}
                 radius="md"
                 size="md"
               />
 
+              <PasswordInput
+                label="Confirm Password"
+                placeholder="Confirm your password"
+                {...register("password_confirmation", {
+                  required: "Please confirm your password",
+                  validate: (value) =>
+                    value === password || "Passwords do not match",
+                })}
+                error={errors.password_confirmation?.message}
+                radius="md"
+                size="md"
+              />
+
               <Button type="submit" fullWidth size="md" radius="md" mt="md">
-                Sign In
+                Sign Up
               </Button>
               <Center>
                 <Text c="dimmed" size="sm">
-                  Don't have an account?
+                  Already have an account?{" "}
                   <Button
                     variant="subtle"
                     size="xs"
                     type="button"
                     onClick={() => {
-                      goToTab("register");
+                      goToTab("login");
                     }}
                   >
-                    Sign Up
+                    Sign In
                   </Button>
                 </Text>
               </Center>
@@ -111,4 +140,6 @@ export default function Login({ goToTab }: LoginFormProps) {
       </Stack>
     </Container>
   );
-}
+};
+
+export default Register;
