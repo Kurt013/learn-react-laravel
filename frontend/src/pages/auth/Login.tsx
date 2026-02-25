@@ -3,17 +3,16 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
-  Group,
   TextInput,
   PasswordInput,
-  Card,
   Container,
   Center,
   Loader,
+  Stack,
+  Title,
+  Text,
 } from "@mantine/core";
 import { useAuth, type LoginType } from "../../hooks/auth";
-import api from "../../middleware/api";
-import { useQuery } from "@tanstack/react-query";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,47 +36,65 @@ export default function Login() {
   };
 
   const loginContainerProps = {
-    mt: "md",
+    size: "xs",
+    py: { base: 80, md: 100 },
   };
 
   if (userLoading)
     return (
-      <Center>
+      <Center h="100vh">
         <Loader />
       </Center>
     );
 
   return (
     <Container {...loginContainerProps}>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <form>
-          <TextInput
-            withAsterisk
-            label="Email"
-            placeholder="your@email.com"
-            {...register("email", { required: true })}
-            error={errors.email?.message}
-          />
-          {errors.email && <span>This field is required</span>}
-          <PasswordInput
-            label="Password"
-            placeholder="Input placeholder"
-            {...register("password", { required: true })}
-            error={errors.password?.message}
-          />
-          {/* errors will return when field validation fails  */}
-          {errors.password && <span>This field is required</span>}
-          <Group justify="flex-end" mt="md">
-            <Button
-              onClick={() => {
-                handleSubmit(onSubmit)();
-              }}
-            >
-              Submit
-            </Button>
-          </Group>
-        </form>
-      </Card>
+      <Stack gap="lg" align="center" justify="center">
+        <div style={{ textAlign: "center" }}>
+          <Title order={1} size="h2" fw={700} mb="xs">
+            Welcome Back
+          </Title>
+          <Text c="dimmed" size="sm">
+            Sign in to your account to continue
+          </Text>
+        </div>
+
+        <Stack gap="md" style={{ width: "100%", maxWidth: 400 }}>
+          <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+            <Stack gap="md">
+              <TextInput
+                label="Email"
+                placeholder="your@email.com"
+                type="email"
+                {...register("email", { required: "Email is required" })}
+                error={errors.email?.message}
+                radius="md"
+                size="md"
+              />
+
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                {...register("password", {
+                  required: "Password is required",
+                })}
+                error={errors.password?.message}
+                radius="md"
+                size="md"
+              />
+
+              <Button type="submit" fullWidth size="md" radius="md" mt="md">
+                Sign In
+              </Button>
+              <Center>
+                <Text c="dimmed" size="sm">
+                  Don't have an account? <a href="./register">Sign Up</a>
+                </Text>
+              </Center>
+            </Stack>
+          </form>
+        </Stack>
+      </Stack>
     </Container>
   );
 }
