@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password;
 use Throwable;
 
 class LoginController extends Controller
@@ -15,7 +16,7 @@ class LoginController extends Controller
     {
         $userValidate = $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => ['required', Password::min(8)->letters()->numbers()],
         ]);
 
         try {
@@ -23,7 +24,6 @@ class LoginController extends Controller
 
             $request->session()->regenerate();
 
-            // Return the authenticated user
             return response()->json(Auth::user());
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
@@ -34,9 +34,9 @@ class LoginController extends Controller
     public function register(Request $request)
     {
         $userValidate = $request->validate([
-            'name' => 'required|string|min:6',
-            'email' => 'required|email',
-            'password' => 'required|min:6|confirmed',
+            'name' => 'required|string|min:2',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ]);
 
         try {
@@ -55,7 +55,7 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $request->session()->invalidate();
-
+        $request->session()->regenerateToken();
         return response()->json('Logout Successfully', 200);
     }
 }

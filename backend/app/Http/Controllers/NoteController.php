@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -12,39 +11,57 @@ class NoteController extends Controller
 
     public function show()
     {
-        $user = auth()->user(); // full User model
-
-        $notes = $user->notes()->latest('updated_at')->get();  // relationship
-
-        return response()->json($notes);
+        try {
+            $user = auth()->user();
+            $notes = $user->notes()->latest('updated_at')->get();
+            return response()->json($notes);
+        } catch (Throwable $e) {
+            Log::error($e->getMessage());
+            return response()->json('Unexpected Error Occurred!', 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $request->user()->notes()->create([
-            'desc' => $request->desc
+        $data = $request->validate([
+            'desc' => ['required', 'string', 'max:1000'],
         ]);
 
-        return response()->json('Note Created Successfully!');
+        try {
+            $request->user()->notes()->create($data);
+            return response()->json('Note Created Successfully!', 201);
+        } catch (Throwable $e) {
+            Log::error($e->getMessage());
+            return response()->json('Unexpected Error Occurred!', 500);
+        }
     }
 
     public function edit(Request $request, int $id)
     {
-        $note = Note::find($id);
+        $data = $request->validate([
+            'desc' => ['required', 'string', 'max:1000'],
+        ]);
 
-        $note->update($request->all());
+        try {
+            $note = $request->user()->notes()->find($id);
+            if (!$note) return response()->json('Not found', 404);
 
-        return response()->json('Note Updated Successfully');
+            $note->update($data);
+
+            return response()->json('Note Updated Successfully', 200);
+        } catch (Throwable $e) {
+            Log::error($e->getMessage());
+            return response()->json('Unexpected Error Occurred!', 500);
+        }
     }
 
-    public function destroy(int $id)
+    public function destroy(Request $request, int $id)
     {
         try {
-            $user = Note::find($id);
+            $note = $request->user()->notes()->find($id);
+            if (!$note) return response()->json('Not found', 404);
 
-            if (!$user) return response()->json("Invalid", 401);
-
-            $user->delete();
+            $note->delete();
 
             return response()->json('Note deleted successfully!', 200);
         } catch (Throwable $e) {
