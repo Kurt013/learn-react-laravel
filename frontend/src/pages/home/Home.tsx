@@ -38,7 +38,11 @@ const Home = () => {
     await api.get("/sanctum/csrf-cookie");
     const res = await api.get("/api/note");
 
-    if (res.data && res.data.length > 0) setNotes(res.data);
+    if (res.data && res.data.length > 0) {
+      setNotes(res.data);
+    } else {
+      setNotes([]);
+    }
   };
 
   const handleDelete = async (id: number | null) => {
@@ -93,11 +97,21 @@ const Home = () => {
       accessorKey: "desc",
     },
     {
-      header: "Created",
+      header: "Created at",
       cell: ({ row }) => {
         return (
           <Text size="sm" c="dimmed">
             {moment(row.original.created_at).format("MMM DD, YYYY")}
+          </Text>
+        );
+      },
+    },
+    {
+      header: "Last Updated at",
+      cell: ({ row }) => {
+        return (
+          <Text size="sm" c="dimmed">
+            {moment(row.original.created_at).format("MMM DD, YYYY - HH:mm:ss")}
           </Text>
         );
       },
@@ -143,14 +157,12 @@ const Home = () => {
     if (selectedItem) {
       setValue("desc", selectedItem?.desc);
       setValue("id", selectedItem.id);
-      // console.log(selectedItem);
     }
   }, [selectedItem]);
 
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
-        {/* Header Section */}
         <Flex justify="space-between" align="center">
           <div>
             <Title order={1} size="h2" fw={700}>
@@ -170,7 +182,6 @@ const Home = () => {
           </ActionIcon>
         </Flex>
 
-        {/* Add/Edit Note Form */}
         <Card shadow="sm" padding="md" radius="md" withBorder>
           <Card.Section withBorder inheritPadding py="md">
             <Title order={3} size="h5">
@@ -208,7 +219,6 @@ const Home = () => {
           </form>
         </Card>
 
-        {/* Notes Table */}
         <Card shadow="sm" padding={0} radius="md" withBorder>
           {notes.length > 0 ? (
             <Table striped highlightOnHover stickyHeader>
