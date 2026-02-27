@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/register', [LoginController::class, 'register']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/register', [LoginController::class, 'register'])->middleware('throttle:10,1');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'throttle:10,1')->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('/', function (Request $request) {
             return $request->user();
@@ -22,7 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    Route::prefix('note')->group(function() {
+    Route::prefix('note')->group(function () {
         Route::controller(NoteController::class)->group(function () {
             Route::get('/', 'show');
             Route::post('/', 'store');
