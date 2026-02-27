@@ -11,6 +11,7 @@ import {
   Stack,
   Title,
   Text,
+  Anchor,
 } from "@mantine/core";
 import { useAuth, type LoginType } from "../../hooks/auth";
 
@@ -92,17 +93,14 @@ export default function Login({ goToTab }: LoginFormProps) {
               </Button>
               <Center>
                 <Text c="dimmed" size="sm">
-                  Don't have an account?
-                  <Button
-                    variant="subtle"
-                    size="xs"
-                    type="button"
+                  Don't have an account?{" "}
+                  <Anchor
                     onClick={() => {
                       goToTab("register");
                     }}
                   >
-                    Sign Up
-                  </Button>
+                    Sign up
+                  </Anchor>
                 </Text>
               </Center>
             </Stack>

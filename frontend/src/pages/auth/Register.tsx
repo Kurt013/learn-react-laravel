@@ -8,6 +8,7 @@ import {
   Stack,
   Title,
   Text,
+  Anchor,
 } from "@mantine/core";
 import api from "../../middleware/api";
 
@@ -122,16 +123,13 @@ const Register = ({ goToTab }: RegisterFormProps) => {
               <Center>
                 <Text c="dimmed" size="sm">
                   Already have an account?{" "}
-                  <Button
-                    variant="subtle"
-                    size="xs"
-                    type="button"
+                  <Anchor
                     onClick={() => {
                       goToTab("login");
                     }}
                   >
-                    Sign In
-                  </Button>
+                    Sign in
+                  </Anchor>
                 </Text>
               </Center>
             </Stack>
